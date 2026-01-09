@@ -1,0 +1,352 @@
+<!DOCTYPE html>    
+<html lang="it">    
+<head>    
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
+<title>regalo del mio mori mori</title>    
+    
+<style>    
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');    
+    
+/* CORREZIONE FONDAMENTALE: Questo impedisce al padding di allargare il sito fuori dallo schermo */  
+* {  
+    box-sizing: border-box;  
+}  
+  
+body{    
+    margin:0;    
+    background:radial-gradient(circle,#0b1d17,#000);    
+    font-family:'Orbitron',sans-serif;    
+    color:#fff;    
+    display:flex;    
+    justify-content:center;    
+    align-items:center;    
+    min-height:100vh;    
+    padding: 15px; /* Spazio di sicurezza dai bordi del telefono */  
+    touch-action: pan-y;   
+}    
+    
+.container{    
+    width: 100%; /* Occupa tutto lo spazio disponibile */  
+    max-width: 500px; /* Ma non diventare gigante su PC */  
+    background:rgba(0,0,0,0.9);    
+    border:2px solid #ff0055;    
+    border-radius:15px;    
+    padding: 20px;   
+    box-shadow:0 0 30px #ff0055;    
+    overflow: hidden; /* Assicura che nulla esca dai bordi */  
+}    
+    
+h1,h2{  
+    text-align:center;  
+    color:#ff0055;  
+    word-wrap: break-word; /* Se una parola è troppo lunga, vai a capo */  
+}  
+  
+/* Testi più piccoli per evitare problemi su schermi stretti */  
+h1 { font-size: 22px; margin-top: 0; }  
+h2 { font-size: 18px; }  
+    
+.timer{    
+    text-align:center;    
+    font-size:22px;    
+    margin-bottom:15px;    
+    color:#00ffcc;    
+}    
+    
+input,button{    
+    width:100%;    
+    padding:12px;    
+    margin:10px 0;    
+    border-radius:6px;    
+    border:none;    
+    font-family:'Orbitron',sans-serif;    
+    font-size: 16px; /* Dimensione leggibile su mobile */  
+}    
+    
+input{    
+    background:#111;    
+    color:#fff;    
+    border:1px solid #ff0055;    
+}    
+    
+button{    
+    background:#ff0055;    
+    color:#fff;    
+    cursor:pointer;    
+    font-weight: bold;    
+}  
+  
+/* Stile testo regole corretto */  
+#rules p {  
+    line-height: 1.6;  
+    font-size: 14px;  
+    text-align: left;  
+    margin-bottom: 20px;  
+}  
+    
+.answer{    
+    background:#111;    
+    padding:12px;    
+    margin:8px 0;    
+    border-radius:6px;    
+    cursor:pointer;    
+    border:1px solid #333;    
+    font-size: 14px;  
+}    
+    
+.answer.selected{    
+    background:#0f8a3a;    
+    box-shadow:0 0 10px #0f8a3a;    
+}    
+    
+.hidden{display:none;}    
+    
+/* STILE GRATTA E VINCI */  
+.scratch-container {  
+    position: relative;  
+    width: 100%;  
+    max-width: 300px; /* Larghezza massima del gratta e vinci */  
+    height: 350px;  
+    margin: 20px auto;  
+    border: 4px solid #fff;  
+    border-radius: 10px;  
+    overflow: hidden;  
+    user-select: none;  
+    background: #000;  
+}  
+  
+.result-layer {  
+    width: 100%;  
+    height: 100%;  
+    background: #222;  
+    display: flex;  
+    flex-direction: column;  
+    align-items: center;  
+    justify-content: center;  
+    text-align: center;  
+    padding: 10px;  
+}  
+  
+.result-layer img {  
+    width: 150px; /* Dimensione fissa immagine */  
+    height: 150px;  
+    object-fit: contain;  
+    margin-bottom: 15px;  
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));  
+}  
+  
+canvas {  
+    position: absolute;  
+    top: 0;  
+    left: 0;  
+    cursor: crosshair;  
+    touch-action: none;  
+}  
+</style>    
+</head>    
+    
+<body>    
+    
+<div class="container">    
+    
+<div id="login">    
+    <h1>ACCESSO RISERVATO</h1>    
+    <input id="user" placeholder="Email" type="text">    
+    <input id="pass" type="password" placeholder="Password">    
+    <button onclick="checkLogin()">ENTRA NEL GIOCO</button>    
+</div>    
+    
+<div id="rules" class="hidden">    
+    <p>    
+    Buongiorno concorrente numero 010. Le regole del gioco sono semplici.<br><br>    
+    Verrà sottoposta a un quiz di cultura generale.<br>    
+    Se le risposte corrette saranno 6 su 10 avrà accesso al suo regalo.<br><br>    
+    In caso contrario, visto che è stato il suo compleanno, potrà scegliere se vedere per l’ultima volta un quadrato, un triangolo o un cerchio.<br><br>    
+    (Prima però accompagni il suo fidanzato Ettore dall’avvocato, grazie).  
+    </p>    
+    <button onclick="startQuiz()">START</button>    
+</div>    
+    
+<div id="quiz" class="hidden">    
+    <div class="timer" id="timerDisplay">05:00</div>    
+    <div id="quizContent"></div>  
+</div>    
+    
+<div id="final" class="hidden">    
+    <h2>GRATTA E VINCI</h2>    
+    <p style="text-align:center; font-size:12px; color:#aaa; margin-top:0;">Passa il dito per scoprire</p>  
+      
+    <div class="scratch-container">  
+        <div id="resultLayer" class="result-layer"></div>  
+        <canvas id="scratchCanvas"></canvas>  
+    </div>  
+</div>    
+    
+</div>    
+    
+<script>    
+const questions=[    
+{q:"Quante sono le Sfere del Drago (classiche)?",a:["7 Terra + 8 Namek","1","4","7"],c:3},    
+{q:"Qual è il sogno di Luffy?",a:["Trovare tutti i frutti","Diventare Re dei Pirati","Diventare famoso","Pirata più forte"],c:1},    
+{q:"Takemichi torna nel passato grazie a:",a:["Un sogno","Un telefono","Una stretta di mano","Un pugno"],c:2},    
+{q:"Chi è il fratello di Goku?",a:["Bardack","Gohan","Raditz","Vegeta"],c:2},    
+{q:"Chi usa le spade?",a:["Usopp","Zoro","Sanji","Luffy"],c:1},    
+{q:"Chi è Mikey?",a:["Il protagonista","Il più alto","Leader Toman","Il più intelligente"],c:2},    
+{q:"Attacco famoso di Goku?",a:["Final Flash","Genkidama","Big Bang","Kamehameha"],c:3},    
+{q:"Che tipo di pirata è Luffy?",a:["Solitario","Ex marinaio","Cappello di Paglia","Grande nave"],c:2},    
+{q:"Obiettivo di Takemichi?",a:["Vendicarsi","Salvare Hinata","Cambiare scuola","Capo gang"],c:1},    
+{q:"Quale NON è un anime?",a:["Naruto Shippuden Game","One Piece","Dragon Ball","Tokyo Revengers"],c:0}    
+];    
+    
+let score=0,current=0,time=300,timerInterval;    
+    
+function checkLogin(){    
+    const userInput = document.getElementById("user").value.trim();  
+    const passInput = document.getElementById("pass").value.trim();  
+      
+    if(userInput === "regalotardi" && passInput === "shein"){    
+        document.getElementById("login").classList.add("hidden");    
+        document.getElementById("rules").classList.remove("hidden");    
+    } else {  
+        alert("ACCESSO NEGATO");    
+    }  
+}    
+    
+function startQuiz(){    
+    document.getElementById("rules").classList.add("hidden");    
+    document.getElementById("quiz").classList.remove("hidden");    
+    startTimer();    
+    loadQuestion();    
+}    
+    
+function startTimer(){    
+    const timerDisplay = document.getElementById("timerDisplay");  
+    timerInterval=setInterval(()=>{    
+        time--;    
+        let m=String(Math.floor(time/60)).padStart(2,'0');    
+        let s=String(time%60).padStart(2,'0');    
+        timerDisplay.innerText=`${m}:${s}`;    
+        if(time<=0){    
+            clearInterval(timerInterval);    
+            endQuiz();    
+        }    
+    },1000);    
+}    
+    
+function loadQuestion(){    
+    if(current>=questions.length){endQuiz();return;}    
+    const q=questions[current];    
+    const quizDiv = document.getElementById("quiz");  
+      
+    const timerHTML = document.getElementById("timerDisplay").outerHTML;  
+    quizDiv.innerHTML = timerHTML + `<h2>${current+1}) ${q.q}</h2>`;  
+      
+    q.a.forEach((ans,i)=>{    
+        let d=document.createElement("div");    
+        d.className="answer";    
+        d.innerText=ans;    
+        d.onclick=()=>selectAnswer(d,i);    
+        quizDiv.appendChild(d);    
+    });    
+}    
+    
+function selectAnswer(el,i){    
+    el.classList.add("selected");    
+    const allAnswers = document.querySelectorAll('.answer');  
+    allAnswers.forEach(a => a.style.pointerEvents = 'none');  
+  
+    if(i===questions[current].c) score++;    
+      
+    setTimeout(()=>{  
+        current++;  
+        loadQuestion();  
+    },600);    
+}    
+    
+function endQuiz(){    
+    clearInterval(timerInterval);    
+    document.getElementById("quiz").classList.add("hidden");    
+    document.getElementById("final").classList.remove("hidden");    
+    initScratchCard();   
+}    
+    
+function initScratchCard() {  
+    const resultLayer = document.getElementById("resultLayer");  
+    const canvas = document.getElementById("scratchCanvas");  
+    const ctx = canvas.getContext("2d");  
+      
+    // Dimensioni canvas dinamiche per mobile  
+    const container = document.querySelector('.scratch-container');  
+    canvas.width = container.offsetWidth;  
+    canvas.height = container.offsetHeight;  
+      
+    // --- LINK ICONE SICURE (Non si rompono) ---  
+    // Icona Tablet Rosa  
+    const linkVittoria = "https://cdn-icons-png.flaticon.com/512/3067/3067464.png";   
+    // Icona Maschera Squid Game  
+    const linkSconfitta = "https://cdn-icons-png.flaticon.com/512/9376/9376869.png";   
+      
+    if(score >= 6){  
+        // VINTO  
+        resultLayer.innerHTML = `  
+            <h3 style="color:#0f8a3a; margin:0 0 10px 0;">ACCESSO CONSENTITO</h3>  
+            <img src="${linkVittoria}" alt="iPad Rosa">  
+            <p style="font-size:20px; font-weight:bold; margin:0;">iPad A16 Rosa</p>  
+        `;  
+    } else {  
+        // PERSO  
+        resultLayer.innerHTML = `  
+            <h3 style="color:#ff0000; margin:0 0 10px 0;">ELIMINATO</h3>  
+            <img src="${linkSconfitta}" alt="Squid Game">  
+            <p style="font-size:18px; margin:0;">Riprova sarai più fortunata</p>  
+        `;  
+    }  
+  
+    // Copertura argentata  
+    ctx.fillStyle = "#C0C0C0";   
+    ctx.fillRect(0, 0, canvas.width, canvas.height);  
+      
+    ctx.fillStyle = "#000";  
+    ctx.font = "bold 20px Orbitron";  
+    ctx.textAlign = "center";  
+    ctx.fillText("GRATTA QUI", canvas.width/2, canvas.height/2);  
+  
+    let isDrawing = false;  
+  
+    function scratch(x, y) {  
+        ctx.globalCompositeOperation = "destination-out";  
+        ctx.beginPath();  
+        ctx.arc(x, y, 30, 0, Math.PI * 2); // Pennello un po' più grande  
+        ctx.fill();  
+    }  
+  
+    // Eventi Mouse  
+    canvas.addEventListener("mousedown", (e) => { isDrawing = true; });  
+    canvas.addEventListener("mouseup", () => { isDrawing = false; });  
+    canvas.addEventListener("mousemove", (e) => {  
+        if (!isDrawing) return;  
+        const rect = canvas.getBoundingClientRect();  
+        scratch(e.clientX - rect.left, e.clientY - rect.top);  
+    });  
+  
+    // Eventi Touch (Fondamentale per iPhone)  
+    canvas.addEventListener("touchstart", (e) => {  
+        isDrawing = true;  
+        // e.preventDefault(); // Rimossa prevenzione default qui per evitare blocchi  
+    }, {passive: false});  
+      
+    canvas.addEventListener("touchend", () => { isDrawing = false; });  
+      
+    canvas.addEventListener("touchmove", (e) => {  
+        if (!isDrawing) return;  
+        e.preventDefault(); // Blocca lo scroll SOLO mentre si gratta dentro il box  
+        const rect = canvas.getBoundingClientRect();  
+        const touch = e.touches[0];  
+        scratch(touch.clientX - rect.left, touch.clientY - rect.top);  
+    }, {passive: false});  
+}  
+</script>    
+    
+</body>    
+</html>  
